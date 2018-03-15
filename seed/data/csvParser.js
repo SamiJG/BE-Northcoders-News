@@ -4,10 +4,12 @@ const fs = require('fs');
 function parseCsvFile(path) {
   return readFile(path).then(CSVstr => {
     const json = [];
-    let data = CSVstr.replace(/"/g, '')
-      .split('\n')
-      .map(arr => arr.split(','));
-    const keys = data.shift();
+    let data = CSVstr.split('\n');
+    const keys = data
+      .shift()
+      .replace(/"/g, '')
+      .split(',');
+    data = data.map(arr => arr.split('"').filter(x => x !== ',' && x));
 
     for (let i = 0; i < data.length; i++) {
       const object = data[i].reduce((acc, item, i, arr) => {
