@@ -2,3 +2,5 @@
 node_modules/*
 .DS_Store
 /config
+/seed/data/samParser.js
+/seed/data/sam-seed.js

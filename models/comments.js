@@ -20,9 +20,9 @@ const CommentSchema = new Schema({
     default: 0
   },
   created_by: {
-    type: String,
-    required: true,
-    default: 'northcoder'
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Users',
+    required: true
   }
 });
 

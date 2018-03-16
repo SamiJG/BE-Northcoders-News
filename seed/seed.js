@@ -3,6 +3,7 @@ const DB_URL = require('../config').DB;
 const { Article, Comment, User, Topic } = require('../models');
 const csv2json = require('./data/csvParser');
 mongoose.Promise = Promise;
+const faker = require('faker');
 
 function seedArticles(userIds, articleData) {
   const articleIds = [];
@@ -18,6 +19,21 @@ function seedArticles(userIds, articleData) {
       });
   });
   return Promise.all(articlePromises).then(() => articleIds);
+}
+
+function seedComments(userIds, articleIds) {
+  const comments = [];
+  for (let i = 1; i <= 200; i++) {
+    const fakeComment = new Comment({
+      body: faker.lorem.paragraph(),
+      belongs_to: articleIds[Math.floor(Math.random() * 36)],
+      created_at: new Date(),
+      votes: 0,
+      created_by: userIds[Math.floor(Math.random() * 6)]
+    });
+    comments.push(fakeComment);
+  }
+  return Comment.insertMany(comments);
 }
 
 function seedDatabase() {
@@ -46,11 +62,16 @@ function seedDatabase() {
       return Promise.all([userIds, csv2json('/articles.csv')]);
     })
     .then(([userIds, articleData]) => {
-      console.log(userIds);
+      console.log(`added ${articleData.length} users into user collection`);
       return Promise.all([userIds, seedArticles(userIds, articleData)]);
     })
-    .then(([userIds, articleIds]) => console.log(articleIds))
-    .then(() => mongoose.disconnect())
+    .then(([userIds, articleIds]) => {
+      return seedComments(userIds, articleIds);
+    })
+    .then(commentData => {
+      console.log(`added ${commentData.length} comments to comment collection`);
+      mongoose.disconnect();
+    })
     .catch(err => console.log(err));
 }
 
