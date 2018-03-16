@@ -4,26 +4,20 @@ const { Article, Comment, User, Topic } = require('../models');
 const csv2json = require('./data/csvParser');
 mongoose.Promise = Promise;
 
-function seedArticles(userIds) {
-  csv2json('/articles.csv')
-    .then(articleData => {
-      const articleIds = [];
-      const articlePromises = articleData.map(article => {
-        const created_by = userIds[Math.floor(Math.random() * 6)];
-        const { title, body, topic: belongs_to } = article;
-        const votes = 0;
-        return new Article({ title, body, belongs_to, votes, created_by })
-          .save()
-          .then(articleDoc => {
-            console.log(articleDoc);
-            console.log(articleIds);
-            articleIds.push(articleDoc._id);
-            return articleDoc;
-          });
+function seedArticles(userIds, articleData) {
+  const articleIds = [];
+  const articlePromises = articleData.map(article => {
+    const created_by = userIds[Math.floor(Math.random() * 6)];
+    const { title, body, topic: belongs_to } = article;
+    const votes = 0;
+    return new Article({ title, body, belongs_to, votes, created_by })
+      .save()
+      .then(articleDoc => {
+        articleIds.push(articleDoc._id);
+        return articleDoc;
       });
-      return Promise.all(articlePromises).then(() => articleIds);
-    })
-    .then(() => articleIds);
+  });
+  return Promise.all(articlePromises).then(() => articleIds);
 }
 
 function seedDatabase() {
@@ -49,12 +43,13 @@ function seedDatabase() {
       return userIds;
     })
     .then(userIds => {
-      return Promise.all([userIds, seedArticles(userIds)]);
+      return Promise.all([userIds, csv2json('/articles.csv')]);
     })
-    .then(([userIds, articleDocs]) => {
+    .then(([userIds, articleData]) => {
       console.log(userIds);
-      console.log(articleDocs);
+      return Promise.all([userIds, seedArticles(userIds, articleData)]);
     })
+    .then(([userIds, articleIds]) => console.log(articleIds))
     .then(() => mongoose.disconnect())
     .catch(err => console.log(err));
 }
