@@ -9,9 +9,9 @@ function seedArticles(userIds, articleData) {
   const articleIds = [];
   const articlePromises = articleData.map(article => {
     const created_by = userIds[Math.floor(Math.random() * 6)];
-    const { title, body, topic: belongs_to } = article;
-    const votes = 0;
-    return new Article({ title, body, belongs_to, votes, created_by })
+    const { title, body, topic } = article;
+    const votes = Math.floor(Math.random() * 50);
+    return new Article({ title, body, topic, votes, created_by })
       .save()
       .then(articleDoc => {
         articleIds.push(articleDoc._id);

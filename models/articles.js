@@ -10,7 +10,7 @@ const ArticleSchema = new Schema({
     type: String,
     required: true
   },
-  belongs_to: {
+  topic: {
     type: String,
     required: true
   },
@@ -20,7 +20,8 @@ const ArticleSchema = new Schema({
     default: 0
   },
   created_by: {
-    type: String,
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'users',
     lowercase: true
   }
 });
