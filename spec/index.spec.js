@@ -21,6 +21,16 @@ describe('/', () => {
     mongoose.disconnect();
   });
 
+  describe('/api', () => {
+    it('returns 404 status and corrertly error handles any incorrect route entered', () => {
+      return request
+        .get('/api/anyWrongRoute')
+        .expect(404)
+        .then(res => {
+          expect(res.body.Message).to.equal('Page not found');
+        });
+    });
+  });
   describe('/topics', () => {
     it('GET returns an object containing an array of all topics, and 200 status', () => {
       return request
@@ -78,6 +88,18 @@ describe('/', () => {
             expect(res.body.newComment.body).to.equal('Test Comment');
           });
       });
+      it('POST returns a bad request error when trying to add comment to an incorrect article id, and 400 status', () => {
+        return request
+          .post(`/api/articles/incorrectArticleId/comments`)
+          .expect(400)
+          .send({ body: 'Test Comment' })
+          .then(res => {
+            expect(res.body.Message).to.equal('Bad Request');
+            expect(res.body.Reason).to.equal(
+              'Unable to add comment: Article does not exist'
+            );
+          });
+      });
     });
     describe('/:article_id', () => {
       it('PUT vote=up, returns the article voted on with a votes count increased by one, and 200 status', () => {
@@ -93,6 +115,29 @@ describe('/', () => {
           .put(`/api/articles/${article_id}?vote=down`)
           .expect(200)
           .then(res => expect(res.body.votes).to.equal(-1));
+      });
+      it('PUT returns a bad request error when trying to vote on an incorrect article id, and 400 status', () => {
+        return request
+          .put(`/api/articles/incorrectArticleId?vote=up`)
+          .expect(400)
+          .then(res => {
+            expect(res.body.Message).to.equal('Bad Request');
+            expect(res.body.Reason).to.equal(
+              'Unable to vote: Article does not exist'
+            );
+          });
+      });
+      it('PUT returns a bad request error when trying to vote using the incorrect query syntax, and 400 status', () => {
+        let article_id = savedData.articles[1]._id;
+        return request
+          .put(`/api/articles/${article_id}?vote=incorrectSyntax`)
+          .expect(400)
+          .then(res => {
+            expect(res.body.Message).to.equal('Bad Request');
+            expect(res.body.Reason).to.equal(
+              'Unable to vote, please check your query selection'
+            );
+          });
       });
     });
   });
@@ -112,7 +157,29 @@ describe('/', () => {
           .expect(200)
           .then(res => expect(res.body.votes).to.equal(-1));
       });
-
+      it('PUT returns a bad request error when trying to vote on an incorrect comment id, and 400 status', () => {
+        return request
+          .put(`/api/comments/incorrectCommentId?vote=up`)
+          .expect(400)
+          .then(res => {
+            expect(res.body.Message).to.equal('Bad Request');
+            expect(res.body.Reason).to.equal(
+              'Unable to vote: Comment does not exist'
+            );
+          });
+      });
+      it('PUT returns a bad request error when trying to vote using the incorrect query syntax, and 400 status', () => {
+        let comment_id = savedData.comments[1]._id;
+        return request
+          .put(`/api/comments/${comment_id}?vote=incorrectSyntax`)
+          .expect(400)
+          .then(res => {
+            expect(res.body.Message).to.equal('Bad Request');
+            expect(res.body.Reason).to.equal(
+              'Unable to vote, please check your query selection'
+            );
+          });
+      });
       it('DELETE removes comment and return comment that has been delelted, and 200 status', () => {
         let comment_id = savedData.comments[0]._id;
         return request
@@ -123,6 +190,17 @@ describe('/', () => {
             return request
               .get('/api/comments')
               .then(res => expect(res.body.comments.length).to.equal(1));
+          });
+      });
+      it('DELETE returns a bad request error when trying to delete an incorrect comment id, and 400 status', () => {
+        return request
+          .delete(`/api/comments/incorrectCommentId`)
+          .expect(400)
+          .then(res => {
+            expect(res.body.Message).to.equal('Bad Request');
+            expect(res.body.Reason).to.equal(
+              'Unable to delete: Comment does not exist'
+            );
           });
       });
     });

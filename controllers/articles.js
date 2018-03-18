@@ -35,20 +35,47 @@ function addCommentToArticle(req, res, next) {
     newComment //needs to populate created_by and belongs_to
       .save()
       .then(newComment => res.status(201).send({ newComment }))
-      .catch(next);
+      .catch(err => {
+        if (err._message === 'comments validation failed')
+          return next({
+            status: 400,
+            msg: 'Unable to add comment: Article does not exist',
+            err
+          });
+        next(err);
+      });
   });
 }
 
 function voteOnArticle(req, res, next) {
   const { article_id } = req.params;
-  const voteUpOrDown = req.query.vote;
-  if (voteUpOrDown === 'up') amount = 1;
-  if (voteUpOrDown === 'down') amount = -1;
-  let update = { $inc: { votes: amount } };
-  Article.findByIdAndUpdate(article_id, update, { new: true })
-    .populate('created_by', 'username')
-    .then(article => res.send(article))
-    .catch(next);
+  const vote = req.query.vote;
+  if (vote !== 'up' && vote !== 'down' && vote !== undefined)
+    return next({
+      status: 400,
+      msg: 'Unable to vote, please check your query selection'
+    });
+  if (vote) {
+    if (vote === 'up') value = 1;
+    if (vote === 'down') value = -1;
+    Article.findByIdAndUpdate(
+      article_id,
+      { $inc: { votes: value } },
+      { new: true }
+    )
+      .populate('created_by', 'username')
+      .then(article => res.send(article))
+      .catch(err => {
+        if (err.name === 'CastError')
+          return next({
+            status: 400,
+            msg: 'Unable to vote: Article does not exist',
+            err
+          });
+        next(err);
+      });
+  }
+  return next({ status: 404 });
 }
 
 module.exports = {
