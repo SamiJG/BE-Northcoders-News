@@ -10,7 +10,6 @@ function getAllArticlesForUser(req, res, next) {
   const { username } = req.params;
   User.findOne({ username: username })
     .then(user => {
-      console.log(user);
       return Promise.all([
         user,
         Article.find({ created_by: user._id }).populate(
