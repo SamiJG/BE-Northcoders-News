@@ -3,22 +3,17 @@ const fs = require('fs');
 // convert a CSV string to JSON
 function parseCsvFile(path) {
   return readFile(path).then(CSVstr => {
-    const json = [];
-    let data = CSVstr.split('\n');
-    const keys = data
-      .shift()
-      .replace(/"/g, '')
-      .split(',');
-    data = data.map(arr => arr.split('"').filter(x => x !== ',' && x));
-
-    for (let i = 0; i < data.length; i++) {
-      const object = data[i].reduce((acc, item, i, arr) => {
-        acc[keys[i]] = item;
-        return acc;
-      }, {});
-      json.push(object);
-    }
-    return json;
+    const [keyString, ...valueStrings] = CSVstr.split('\n');
+    const keys = keyString.replace(/(^"|"$)/g, '').split(/","/);
+    return valueStrings.map(valueString => {
+      return valueString
+        .replace(/(^"|"$)/g, '')
+        .split(/","/)
+        .reduce((acc, value, i) => {
+          acc[keys[i]] = value;
+          return acc;
+        }, {});
+    });
   });
 }
 function readFile(path) {
