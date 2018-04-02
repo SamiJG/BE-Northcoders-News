@@ -11,14 +11,10 @@ function getAllComments(req, res, next) {
 function voteOnComment(req, res, next) {
   const { comment_id } = req.params;
   const vote = req.query.vote;
-  if (vote !== 'up' && vote !== 'down' && vote !== undefined)
-    return next({
-      status: 400,
-      msg: 'Unable to vote, please check your query selection'
-    });
   if (vote) {
     if (vote === 'up') value = 1;
-    if (vote === 'down') value = -1;
+    else if (vote === 'down') value = -1;
+    else value = 0;
     Comment.findByIdAndUpdate(
       comment_id,
       { $inc: { votes: value } },
@@ -36,8 +32,7 @@ function voteOnComment(req, res, next) {
           });
         next(err);
       });
-  }
-  return next({ status: 404 });
+  } else return next({ status: 404 });
 }
 
 function deleteComment(req, res, next) {

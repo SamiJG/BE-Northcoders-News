@@ -127,16 +127,13 @@ describe('/', () => {
             );
           });
       });
-      it('PUT returns a bad request error when trying to vote using the incorrect query syntax, and 400 status', () => {
+      it("PUT incorrect query, returns the article with it's current vote count, and 200 status", () => {
         let article_id = savedData.articles[1]._id;
         return request
           .put(`/api/articles/${article_id}?vote=incorrectSyntax`)
-          .expect(400)
+          .expect(200)
           .then(res => {
-            expect(res.body.Message).to.equal('Bad Request');
-            expect(res.body.Reason).to.equal(
-              'Unable to vote, please check your query selection'
-            );
+            expect(res.body.votes).to.equal(0);
           });
       });
     });
@@ -168,16 +165,13 @@ describe('/', () => {
             );
           });
       });
-      it('PUT returns a bad request error when trying to vote using the incorrect query syntax, and 400 status', () => {
+      it("PUT incorrect query, returns the article with it's current vote count, and 200 status", () => {
         let comment_id = savedData.comments[1]._id;
         return request
           .put(`/api/comments/${comment_id}?vote=incorrectSyntax`)
-          .expect(400)
+          .expect(200)
           .then(res => {
-            expect(res.body.Message).to.equal('Bad Request');
-            expect(res.body.Reason).to.equal(
-              'Unable to vote, please check your query selection'
-            );
+            expect(res.body.votes).to.equal(0);
           });
       });
       it('DELETE removes comment and return comment that has been delelted, and 200 status', () => {
