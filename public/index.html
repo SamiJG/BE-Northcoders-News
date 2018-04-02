@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>NC News</title>
+  <link rel="stylesheet" type="text/css" href="style.css">
+</head>
+
+<body>
+  <h1> Northcoders News</h1>
+  <h2>API Endpoints</h2>
+
+  <h3> GET
+    <code> /api/topics</code> </h3>
+  <p> Returns a JSON object containing all topics</p>
+
+  <h3> GET
+    <code> /api/topics/:topic/articles</code> </h3>
+  <p> Returns a JSON object containing all articles of a given topic</p>
+
+  <h3> GET
+    <code> /api/articles</code> </h3>
+  <p> Returns a JSON object containing all articles</p>
+
+  <h3> GET
+    <code> /api/articles/:article_id/comments</code> </h3>
+  <p> Returns a JSON object containing comments for a given article and the article itself</p>
+
+  <h3> POST
+    <code> /api/articles/:article_id/comments</code> </h3>
+  <p> Adds a comment to the database and returns a JSON object containing the posted comment.
+    <br/> This route requires a JSON
+    <code>body</code> with a
+    <code>comment</code> key value pair
+    <br/> eg
+    <code>{"comment": "This is my new comment"}</code>
+  </p>
+
+  <h3> PUT
+    <code> /api/articles/:article_id</code> </h3>
+  <p> Changes the vote count of a given article and returns a JSON object containing the article.
+    <br/>Increment or Decrement the votes of an article by one. This route requires a
+    <code>vote</code> query of 'up' or 'down'
+    <br/>e.g:
+    <code>http://nc-news-sami.herokuapp.com/api/articles/:article_id?vote=up</code>
+  </p>
+
+  <h3> PUT
+    <code> /api/comments/:comment_id</code> </h3>
+  <p> Changes the vote count of a given comment and returns a JSON object containing the comment
+    <br/>Increment or Decrement the votes of an article by one. This route requires a
+    <code>vote</code> query of 'up' or 'down'
+    <br/>e.g:
+    <code>http://nc-news-sami.herokuapp.com/api/comments/:comment_id?vote=down</code>
+  </p>
+
+  <h3> DELETE
+    <code> /api/comments/:comment_id</code> </h3>
+  <p> Returns a JSON object containing the deleted comment and confirmation that comment has been deleted</p>
+
+  <h3> GET
+    <code> /api/users/</code> </h3>
+  <p> Returns a JSON object containing all user information</p>
+
+  <h3> GET
+    <code> /api/users/:username/articles</code> </h3>
+  <p> Returns a JSON object containing all articles by the specified user and their user data.</p>
+
+
+</body>
+
+</html>

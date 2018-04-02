@@ -5,13 +5,10 @@ const topicsRouter = require('./topics');
 const articlesRouter = require('./articles');
 const usersRouter = require('./users');
 
+apiRouter.use(express.static('public'));
 apiRouter.use('/comments', commentsRouter);
 apiRouter.use('/topics', topicsRouter);
 apiRouter.use('/articles', articlesRouter);
 apiRouter.use('/users', usersRouter);
-
-apiRouter.get('/', (req, res, next) => {
-  res.send('OK, cool! :)');
-});
 
 module.exports = apiRouter;
