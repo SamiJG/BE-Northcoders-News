@@ -2,23 +2,30 @@ const mongoose = require('mongoose');
 const { Article, Comment, User } = require('../models');
 
 function getAllArticles(req, res, next) {
-  Promise.all([
-    Article.aggregate([
-      {
-        $lookup: {
-          from: 'comments',
-          localField: '_id',
-          foreignField: 'belongs_to',
-          as: 'comments'
-        }
-      }
-    ])
-  ]) //got comment counts, but lost ability to chain populate
-    // .populate(result, 'created_by', 'username')
-    .then(([articles]) => {
-      articles.forEach(article => (article.comments = article.comments.length));
-      res.send({ articles });
+  Article.find()
+    .populate('created_by', 'username')
+    .then(articles => {
+      return Promise.all([articles, Comment.find()]);
     })
+    .then(([articleDocs, comments]) => {
+      const commentCount = comments.reduce((acc, comment) => {
+        const username = comment.belongs_to;
+        acc[username] ? acc[username]++ : (acc[username] = 1);
+        return acc;
+      }, {});
+      return articleDocs.map(article => {
+        return {
+          title: article.title,
+          body: article.body,
+          topic: article.topic,
+          created_by: article.created_by.username,
+          votes: article.votes,
+          comments: commentCount[article._id],
+          _id: article._id
+        };
+      });
+    })
+    .then(articles => res.send({ articles }))
     .catch(next);
 }
 
