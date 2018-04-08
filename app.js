@@ -16,6 +16,7 @@ mongoose
   .then(() => console.log('successfully connected to', db))
   .catch(err => console.log('connection failed', err));
 
+app.options('*', cors());
 app.use(function(req, res, next) {
   res.header('Access-Control-Allow-Origin', '*');
   res.header(
